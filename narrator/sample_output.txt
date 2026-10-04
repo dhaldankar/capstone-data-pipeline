@@ -1,0 +1,10 @@
+OFFLINE BASELINE — replace with an actual validated Gemini output before submission.
+
+Situation
+The cleaned order value is INR 97,358.30 from the deduplicated orders. Raw order value was INR 99,860.20.
+
+Complication
+COD has a 44.4% return rate; COD orders in Tier-2 cities have a 54.5% rate. Five duplicate records inflated the raw order value by INR 2,501.90. The apparent January peak of INR 29,582.10 falls to INR 11,637.10 when two unusually large orders are excluded for trend analysis.
+
+Resolution
+Review return causes in COD Tier-2 orders and prevent duplicate submissions. Use March at INR 20,318.90 as the peak month for the comparison excluding bulk orders. Investigate causes before changing payment or fulfilment policies.
