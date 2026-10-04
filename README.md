@@ -4,17 +4,15 @@ Capstone submission for *Data Analytics with AI & Gen AI* (E&ICT Academy, IIT Ro
 
 **Live report:** https://dhaldankar.github.io/capstone-data-pipeline/
 
-This project answers one business question — *where are returns really coming from, and what is the true revenue picture once the data is cleaned?* — across three connected layers:
+This project examines where returns come from and how data cleaning affects reported revenue across three connected layers:
 
 1. **SQL** builds a relational store from the raw CSVs and runs nine business reports.
 2. **Python / pandas** independently cleans the same CSVs, reconciles the revenue, tests the hypotheses, and writes verified findings plus two charts.
 3. **GenAI** turns those findings into a Situation–Complication–Resolution business narrative via any OpenAI-compatible provider (OpenAI, DeepSeek, …), with an offline fallback that needs no API key.
 
-Reported revenue is **discounted order value**, not profit or revenue after refunds. The three CSVs in `data/` are the unchanged source files.
-
 ## The live report
 
-Every push to `main` runs `.github/workflows/pages.yml`, which builds the static report offline and deploys it to GitHub Pages. The page is the fastest way to see the results: the revenue reconciliation, return-rate breakdown, outlier-corrected trend, both charts, the business narrative, and the SQL report outputs.
+Every push to `main` runs `.github/workflows/pages.yml`, which builds the static report offline and deploys it to GitHub Pages. The page consists: the revenue reconciliation, return-rate breakdown, outlier-corrected trend, both charts, the business narrative, and the SQL report outputs.
 
 To enable it on a fresh clone: push to `main`, then set **Settings → Pages → Build and deployment → Source: GitHub Actions**. The workflow needs no API key.
 
@@ -24,10 +22,10 @@ Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
 
 ```bash
 uv sync --locked
-uv run capstone run-all --offline --reset-db
+uv run capstone run-all --online --reset-db
 ```
 
-That one command seeds the database, runs the analysis and charts, generates the offline narrative, and renders the site to `pages/index.html` (open it in a browser — no server needed). Use `--online` instead of `--offline` to call the configured LLM provider.
+That above command seeds the database, runs the analysis and charts, generates the offline narrative, and renders the site to `pages/index.html` (you can open the local [index.html](pages/index.html) in browser). Use `--offline` to avoid calling the LLM provider.
 
 To run each layer on its own:
 
