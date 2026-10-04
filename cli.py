@@ -35,7 +35,16 @@ def main() -> None:
         from reporting.render import render
         render(run_pipeline(),database.reports(),run(offline=True))
     elif args.command=='run-all':
-        from pipelines.run import run_all
-        run_all(offline=not args.online,reset_database=args.reset_db)
+        from analysis.clean_and_eda import main as analyze, run_pipeline
+        from analysis.visualize import generate_charts
+        from narrator.generate_narrative import run as narrate
+        from reporting.render import render
+        if args.reset_db: database.reset()
+        sql_results=database.reports()
+        analyze()
+        analysis=run_pipeline()
+        generate_charts(analysis)
+        narrative=narrate(offline=not args.online)
+        render(analysis,sql_results,narrative)
 
 if __name__=='__main__': main()

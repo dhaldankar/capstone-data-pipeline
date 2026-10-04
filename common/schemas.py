@@ -24,6 +24,19 @@ class Findings(BaseModel):
     true_peak_month: PeakMonth
     outlier_inflated_month: InflatedMonth
 
+class ScrNarrative(BaseModel):
+    """Structured Situation-Complication-Resolution narrative returned by LLM providers."""
+    situation: str
+    complication: str
+    resolution: str
+
+    def to_text(self) -> str:
+        return (
+            f"Situation\n{self.situation.strip()}\n\n"
+            f"Complication\n{self.complication.strip()}\n\n"
+            f"Resolution\n{self.resolution.strip()}"
+        )
+
 class NarrativeResult(BaseModel):
     status: str
     narrative: str | None = None

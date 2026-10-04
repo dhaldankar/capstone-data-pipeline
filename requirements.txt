@@ -4,46 +4,32 @@ annotated-types==0.8.0
     # via pydantic
 anyio==4.15.1
     # via
-    #   google-genai
-    #   httpx
-certifi==2026.7.22
-    # via
-    #   httpcore
-    #   httpx
-    #   requests
-cffi==2.1.1 ; platform_python_implementation != 'PyPy'
-    # via cryptography
-charset-normalizer==3.5.2
-    # via requests
+    #   httpx2
+    #   openai
 contourpy==1.3.3 ; python_full_version < '3.12'
     # via matplotlib
 contourpy==1.4.0 ; python_full_version >= '3.12'
     # via matplotlib
-cryptography==50.0.2
-    # via google-auth
 cycler==0.12.1
     # via matplotlib
-distro==1.9.0
-    # via google-genai
 fonttools==4.66.1
     # via matplotlib
-google-auth==2.59.1
-    # via google-genai
-google-genai==2.28.0
-    # via mamaearth-capstone
-h11==0.16.0
-    # via httpcore
-httpcore==1.0.9
-    # via httpx
-httpx==0.28.1
-    # via google-genai
+h11==0.16.0 ; sys_platform != 'emscripten'
+    # via httpcore2
+httpcore2==2.13.1 ; sys_platform != 'emscripten'
+    # via httpx2
+httpx2==2.13.1
+    # via openai
+httpx2-jsfetch==1.0 ; python_full_version >= '3.12' and sys_platform == 'emscripten'
+    # via httpx2
 idna==3.20
     # via
     #   anyio
-    #   httpx
-    #   requests
+    #   httpx2
 jinja2==3.1.6
     # via mamaearth-capstone
+jiter==0.17.0
+    # via openai
 kiwisolver==1.5.1
     # via matplotlib
 markupsafe==3.0.4
@@ -60,22 +46,18 @@ numpy==2.5.3 ; python_full_version >= '3.12'
     #   contourpy
     #   matplotlib
     #   pandas
+openai==3.24.0
+    # via mamaearth-capstone
 packaging==26.3
     # via matplotlib
 pandas==2.3.3
     # via mamaearth-capstone
 pillow==12.3.0
     # via matplotlib
-pyasn1==0.6.4
-    # via pyasn1-modules
-pyasn1-modules==0.4.2
-    # via google-auth
-pycparser==3.0 ; implementation_name != 'PyPy' and platform_python_implementation != 'PyPy'
-    # via cffi
 pydantic==2.13.5
     # via
-    #   google-genai
     #   mamaearth-capstone
+    #   openai
 pydantic-core==2.46.5
     # via pydantic
 pyparsing==3.3.3
@@ -84,22 +66,23 @@ python-dateutil==2.9.0.post0
     # via
     #   matplotlib
     #   pandas
+python-dotenv==1.2.4
+    # via mamaearth-capstone
 pytz==2026.5
     # via pandas
-requests==2.34.2
-    # via
-    #   google-auth
-    #   google-genai
 six==1.17.0
     # via python-dateutil
 sniffio==1.3.1
-    # via google-genai
-tenacity==9.1.4
-    # via google-genai
+    # via openai
+truststore==0.10.4 ; sys_platform != 'emscripten'
+    # via
+    #   httpcore2
+    #   httpx2
 typing-extensions==4.16.0
     # via
     #   anyio
-    #   google-genai
+    #   httpx2
+    #   openai
     #   pydantic
     #   pydantic-core
     #   typing-inspection
@@ -107,7 +90,3 @@ typing-inspection==0.4.4
     # via pydantic
 tzdata==2026.5
     # via pandas
-urllib3==2.8.0
-    # via requests
-websockets==16.1.1
-    # via google-genai

@@ -1,33 +1,65 @@
-"""Gemini and keyless SCR narration from verified analysis findings."""
+"""OpenAI-compatible and keyless SCR narration from verified analysis findings.
+
+The LLM path uses any OpenAI-compatible provider (OpenAI, DeepSeek, ...) selected
+through environment variables and requests JSON-mode structured output that is
+validated against the ScrNarrative schema. When no key is configured or the
+provider is unavailable/inaccurate, a verified keyless offline narrative is used.
+"""
 import json
-import os
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from common.config import ROOT
-from common.schemas import Findings
+from common.config import ROOT, LLM_PROVIDER, LLM_API_KEY, LLM_BASE_URL, LLM_MODEL
+from common.schemas import Findings, ScrNarrative
+
+SYSTEM_INSTRUCTION = (
+    'You are a senior data analyst writing for Mamaearth regional operations and finance heads. '
+    'Produce a Situation-Complication-Resolution narrative. Every number must come from the supplied '
+    'findings and retain its exact value. Do not invent statistics. Explain the duplicate reconciliation '
+    'and the outlier-corrected peak. '
+    'Return ONLY a JSON object with exactly these string keys: "situation", "complication", "resolution". '
+    'Do not include section labels inside the values and do not wrap the JSON in markdown. '
+    'Example shape: {"situation": "...", "complication": "...", "resolution": "..."}'
+)
+
 
 def generate_scr_narrative(findings: dict) -> dict:
+    """Generate the narrative via an OpenAI-compatible provider using JSON mode.
+
+    Provider configuration is centralized in common.config (loaded from .env):
+      LLM_PROVIDER  - label only, for attribution/logging (default: openai)
+      LLM_API_KEY   - API key for the provider
+      LLM_BASE_URL  - OpenAI-compatible endpoint (blank = OpenAI default)
+      LLM_MODEL     - model name (default: gpt-4o-mini)
+    """
     try:
-        from google import genai
-        from google.genai import types
-        client = genai.Client(api_key=os.environ['GEMINI_API_KEY'], http_options=types.HttpOptions(timeout=30000))
+        from openai import OpenAI
+
+        if not LLM_API_KEY:
+            raise ValueError('LLM_API_KEY is not set')
+
+        client = OpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL, timeout=30.0)
         # Factual reporting calls for stable output, not creative variation.
-        response = client.models.generate_content(
-            model=os.getenv('GEMINI_MODEL', 'gemini-2.5-flash'),
-            contents='Use these verified findings only:\n'+json.dumps(findings,indent=2),
-            config=types.GenerateContentConfig(
-                system_instruction=('You are a senior data analyst writing for Mamaearth regional operations and finance heads. '
-                  'Write three labeled sections: Situation, Complication, Resolution. Every number must come from supplied findings '
-                  'and retain its value. Do not invent statistics. Explain the duplicate reconciliation and outlier-corrected peak.'),
-                temperature=0.0, max_output_tokens=2048),
+        response = client.chat.completions.create(
+            model=LLM_MODEL,
+            messages=[
+                {'role': 'system', 'content': SYSTEM_INSTRUCTION},
+                {'role': 'user', 'content': 'Use these verified findings only:\n' + json.dumps(findings, indent=2)},
+            ],
+            response_format={'type': 'json_object'},
+            temperature=0.0,
+            max_tokens=2048,
         )
-        if not response.text:
-            raise ValueError('Empty Gemini response')
-        tokens = getattr(getattr(response,'usage_metadata',None),'total_token_count',None)
-        return {'status':'success','narrative':response.text,'tokens':tokens,'source':'gemini'}
+        content = response.choices[0].message.content
+        if not content:
+            raise ValueError('Empty LLM response')
+        narrative = ScrNarrative.model_validate_json(content).to_text()
+        tokens = getattr(getattr(response, 'usage', None), 'total_tokens', None)
+        return {'status': 'success', 'narrative': narrative, 'tokens': tokens, 'source': LLM_PROVIDER}
     except Exception as err:
-        return {'status':'error','narrative':None,'message':str(err)}
+        return {'status': 'error', 'narrative': None, 'message': str(err)}
+
 
 def generate_scr_narrative_offline(findings: dict) -> dict:
     f=Findings.model_validate(findings)
@@ -63,13 +95,15 @@ def check_numeric_accuracy(narrative: str, findings: dict) -> dict[str,bool]:
 def run(*, offline: bool = False) -> dict:
     findings=json.loads((ROOT/'narrator/findings.json').read_text())
     Findings.model_validate(findings)
-    result=generate_scr_narrative_offline(findings) if offline or not os.getenv('GEMINI_API_KEY') else generate_scr_narrative(findings)
+    use_llm = not offline and LLM_API_KEY
+    result=generate_scr_narrative(findings) if use_llm else generate_scr_narrative_offline(findings)
+
     if result['status']!='success' or not all(check_numeric_accuracy(result['narrative'],findings)):
-        print('Gemini unavailable or inaccurate; using verified offline narrative.')
+        print('LLM provider unavailable or inaccurate; using verified offline narrative.')
         result=generate_scr_narrative_offline(findings)
     if not all(check_numeric_accuracy(result['narrative'],findings)):
         raise ValueError('Narrative failed numerical checks')
-    if result['source']=='gemini':
+    if result['source']!='offline':
         (ROOT/'narrator/sample_output.txt').write_text(result['narrative']+'\n')
     return result
 
