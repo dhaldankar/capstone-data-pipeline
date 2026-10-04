@@ -27,7 +27,7 @@ uv sync --locked
 uv run capstone run-all --offline --reset-db
 ```
 
-That one command seeds the database, runs the analysis and charts, generates the offline narrative, and renders the site to `dist/index.html` (open it in a browser — no server needed). Use `--online` instead of `--offline` to call the configured LLM provider.
+That one command seeds the database, runs the analysis and charts, generates the offline narrative, and renders the site to `pages/index.html` (open it in a browser — no server needed). Use `--online` instead of `--offline` to call the configured LLM provider.
 
 To run each layer on its own:
 
@@ -37,7 +37,7 @@ uv run capstone reports          # run the nine SQL reports (Part 1)
 uv run capstone analyze          # clean, reconcile, analyse; write narrator/findings.json (Part 2)
 uv run capstone charts           # write both PNGs to visualizations/ (Part 2)
 uv run capstone narrate          # offline narrative; add --online to call the LLM provider (Part 3)
-uv run capstone render           # build the static site in dist/
+uv run capstone render           # build the static site in pages/
 ```
 
 The required standalone scripts also run directly and read the CSVs without the database:
@@ -121,7 +121,7 @@ Values already set in the shell/CI environment take precedence over `.env`. When
 ├── analysis/      clean_and_eda.py · visualize.py
 ├── visualizations/  return_rate_by_payment.png · monthly_revenue_trend.png
 ├── narrator/      findings.json · generate_narrative.py · sample_output.txt
-├── reporting/     render.py · templates · static        (builds dist/)
+├── reporting/     render.py · templates · static        (builds pages/)
 ├── common/        config · database · schemas            (coordination only)
 └── cli.py         command runner
 ```

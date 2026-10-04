@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parents[1]
 DB_PATH = ROOT / 'capstone.sqlite3'
-DIST = ROOT / 'dist'
+PAGES = ROOT / 'pages'
 
 # Load .env from the project root once on import. No-op when the file is absent;
 # existing process environment variables take precedence over .env values.

@@ -1,11 +1,11 @@
 """Render precomputed results as static files for GitHub Pages."""
 import shutil
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from common.config import ROOT, DIST
+from common.config import ROOT, PAGES
 
 def render(analysis: dict, sql_reports: list[dict], narrative: dict) -> None:
-    DIST.mkdir(exist_ok=True)
-    assets=DIST/'assets';assets.mkdir(exist_ok=True)
+    PAGES.mkdir(exist_ok=True)
+    assets=PAGES/'assets';assets.mkdir(exist_ok=True)
     env=Environment(loader=FileSystemLoader(ROOT/'reporting/templates'),autoescape=select_autoescape(['html']))
     page=env.get_template('index.html.j2').render(
         findings=analysis['findings'], reports=sql_reports, narrative=narrative,
@@ -16,7 +16,7 @@ def render(analysis: dict, sql_reports: list[dict], narrative: dict) -> None:
         outliers=analysis['clean'].loc[analysis['clean'].is_outlier,['order_id','quantity']].to_dict('records'),
         checks=analysis['checks'],
     )
-    (DIST/'index.html').write_text(page)
+    (PAGES/'index.html').write_text(page)
     shutil.copyfile(ROOT/'reporting/static/styles.css',assets/'styles.css')
     for name in ('return_rate_by_payment.png','monthly_revenue_trend.png'):
         shutil.copyfile(ROOT/'visualizations'/name,assets/name)
